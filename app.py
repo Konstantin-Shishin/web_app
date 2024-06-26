@@ -5,7 +5,7 @@ import sqlite3
 app = Flask(__name__)
 
 # Создание соединения с базой данных
-con = sqlite3.connect('new.db', check_same_thread=False)
+con = sqlite3.connect('films.db', check_same_thread=False)
 # Создание курсора для выполнения SQL запросов
 cur = con.cursor()
 
@@ -21,20 +21,19 @@ def film(id):
     # Выполнение SQL запроса для получения данных о фильме по ID
     res = cur.execute(f"select * from Movies where id = ?", (id,))
     # Получение результата запроса
-    films = res.fetchone()
+    film = res.fetchone()
+    print(film)
     # Проверка, найден ли фильм
-    if films != None:
-        # Формирование строки с информацией о фильме
-        t = f"ID {films[0]}, Название: {films[1]}, Год выпуска: {films[2]} "
+    if film != None:
+        # Возвращение результата
+        return render_template('film.html', film = film )
     else:
-        # Сообщение о том, что фильма не существует
-        t = "Такого фильма нет"
-    # Возвращение результата
-    return t
+        # Сообщение о том, что фильма не существует   
+        return "Такого фильма нет"
 
 @app.route("/films")
 def films():
-    return render_template('film.html')
+    return render_template('films.html')
 
 # Маршрут для добавления нового фильма
 @app.route("/film_add")
