@@ -1,5 +1,11 @@
 from flask import Flask, request, render_template
 import sqlite3
+from flask_wtf import FlaskForm
+from wtforms import StringField
+from wtforms.validators import DataRequired
+
+class MyForm(FlaskForm):
+    name = StringField('nerger', validators=[DataRequired()])
 
 # Инициализация Flask приложения
 app = Flask(__name__)
@@ -35,6 +41,13 @@ def film(id):
 def films():
     return render_template('films.html')
 
+@app.route("/film_form")
+def film_form():
+    form = MyForm()
+    if form.validate_on_submit():
+        return 'Форма отправлена на сервер'
+    return render_template('form.html', form=form)
+
 # Маршрут для добавления нового фильма
 @app.route("/film_add")
 def film_add():
@@ -54,4 +67,5 @@ def film_add():
 
 # Запуск приложения, если оно выполняется как главный модуль
 if __name__ == '__main__':
+    app.config["WTF_CSRF_ENABLED"] = False  # Отключаем проверку CSRF для WTForms
     app.run(debug=True)
