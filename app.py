@@ -1,11 +1,19 @@
 from flask import Flask, request, render_template
 import sqlite3
 from flask_wtf import FlaskForm
-from wtforms import StringField
+from wtforms import *
 from wtforms.validators import DataRequired
 
+# Определение формы для добавления фильма
 class MyForm(FlaskForm):
-    name = StringField('nerger', validators=[DataRequired()])
+    # Поле для названия фильма
+    name = StringField('Название', validators=[DataRequired()]) 
+    # Поле для года выпуска фильма
+    year = IntegerField('Год выпуска')
+    # Поле для рейтинга фильма
+    rating = FloatField('Рейтинг')
+    # Поле для жанра фильма
+    genre = StringField('Жанр')
 
 # Инициализация Flask приложения
 app = Flask(__name__)
@@ -37,15 +45,27 @@ def film(id):
         # Сообщение о том, что фильма не существует   
         return "Такого фильма нет"
 
-@app.route("/films")
+# Маршрут для получения списка всех фильмов
+@app.route("/films" )
 def films():
-    return render_template('films.html')
+    # Выполнение SQL запроса для получения всех фильмов
+    res = cur.execute("select * from Movies")
+    # Получение результата запроса
+    films = res.fetchall()
+    # Возвращение списка фильмов
+    return render_template('films.html', films = films)
 
-@app.route("/film_form")
+# Маршрут для отображения формы добавления фильма
+@app.route("/film_form", methods=['GET', 'POST'])
 def film_form():
+    # Создание формы
     form = MyForm()
+    # Проверка, была ли отправлена заполненная форма на сервер
     if form.validate_on_submit():
-        return 'Форма отправлена на сервер'
+        # Если форма была отправлена, выводим сообщение о том, что форма отправлена
+        # todo: разобрать данные с формы здесь
+        return 'Данные отправлены на сервер!'
+    # Возвращаем форму для отображения к заполнению
     return render_template('form.html', form=form)
 
 # Маршрут для добавления нового фильма
@@ -67,5 +87,7 @@ def film_add():
 
 # Запуск приложения, если оно выполняется как главный модуль
 if __name__ == '__main__':
-    app.config["WTF_CSRF_ENABLED"] = False  # Отключаем проверку CSRF для WTForms
+    # Отключение проверки CSRF для WTForms
+    app.config["WTF_CSRF_ENABLED"] = False  
+    # Запуск приложения в режиме отладки
     app.run(debug=True)
