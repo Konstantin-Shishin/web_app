@@ -1,8 +1,9 @@
 from flask import Flask, request, render_template
-import sqlite3
+import sqlite3  
 from flask_wtf import FlaskForm
 from wtforms import *
 from wtforms.validators import DataRequired
+from flask_sqlalchemy import SQLAlchemy
 
 # Определение формы для добавления фильма
 class MyForm(FlaskForm):
@@ -18,14 +19,36 @@ class MyForm(FlaskForm):
 # Инициализация Flask приложения
 app = Flask(__name__)
 
-# Создание соединения с базой данных
-con = sqlite3.connect('films.db', check_same_thread=False)
-# Создание курсора для выполнения SQL запросов
+# Настройка соединения с базой данных (sqlite)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///films.db'
+db = SQLAlchemy(app)
+
+# Модель фильма для SQLAlchemy
+class Film(db.Model):
+    __tablename__ = 'Movies'  # Указываем название таблицы
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80))
+    year = db.Column(db.Integer)
+    rating = db.Column(db.Float)
+    genre = db.Column(db.String(80))
+
+    def __init__(self, name, year, rating, genre):
+        self.name = name
+        self.year = year
+        self.rating = rating
+        self.genre = genre
+
+# Создание соединения с базой данных  
+con = sqlite3.connect('./instance/films.db', check_same_thread=False)
+# Создание курсора для выполнения SQL запросов  
 cur = con.cursor()
 
 # Маршрут для корневой страницы
 @app.route("/")
 def hello_world():
+    # new_film = Film('svsvsd', 'sdcsdc')  # Удалено, так как мы используем SQLAlchemy
+    # db.session.add(new_film)
+    # db.session.commit()
     # Возвращение приветственного сообщения
     return render_template('main.html')
 
@@ -62,13 +85,24 @@ def film_form():
     form = MyForm()
     # Проверка, была ли отправлена заполненная форма на сервер
     if form.validate_on_submit():
-        # Если форма была отправлена, выводим сообщение о том, что форма отправлена
-        # todo: разобрать данные с формы здесь
-        return 'Данные отправлены на сервер!'
+        # Если форма была отправлена, сохраняем данные в базу данных с помощью SQLAlchemy
+        # Создаем объект класса Film
+        new_film = Film(
+            name=form.name.data,
+            year=form.year.data,
+            rating=form.rating.data,
+            genre=form.genre.data
+        )
+        # Вставляем новый фильм в БД
+        db.session.add(new_film)
+        # Фиксируем изменения
+        db.session.commit()
+        # Возвращаем сообщение о том, что фильм добавлен
+        return 'Фильм добавлен!'
     # Возвращаем форму для отображения к заполнению
     return render_template('form.html', form=form)
 
-# Маршрут для добавления нового фильма
+#Маршрут для добавления нового фильма  
 @app.route("/film_add")
 def film_add():
     # Получение данных о фильме из параметров запроса
