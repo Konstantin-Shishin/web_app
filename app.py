@@ -85,19 +85,23 @@ def film_form():
     form = MyForm()
     # Проверка, была ли отправлена заполненная форма на сервер
     if form.validate_on_submit():
-        # Если форма была отправлена, сохраняем данные в базу данных с помощью SQLAlchemy
-        # Создаем объект класса Film
-        new_film = Film(
-            name=form.data['name'],
-            year=form.data['year'],
-            rating=form.data['rating'],
-            genre=form.data['genre']
-        )
-        # Вставляем новый фильм в БД
+        # Извлекаем данные из формы
+        name=form.data['name']
+        year=form.data['year']
+        rating=form.data['rating']
+        genre=form.data['genre']
+        #Создаем объект фильма
+        new_film = Film(name, genre, year, rating)
+        #Добавляем в БД
         db.session.add(new_film)
-        # Фиксируем изменения
+        #Фиксируем изменения
         db.session.commit()
-        # Возвращаем сообщение о том, что фильм добавлен
+        # ниже вариант с использованием sqlite3
+        # film_data = (name, genre, year, rating)
+        # # Выполнение SQL запроса для добавления фильма в базу данных
+        # cur.execute('INSERT INTO Movies (name, genre, year, rating) VALUES (?, ?, ?, ?)', film_data)
+        # # Сохранение изменений в базе данных
+        # con.commit()
         return 'Фильм добавлен!'
     # Возвращаем форму для отображения к заполнению
     return render_template('form.html', form=form)
