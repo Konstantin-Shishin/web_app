@@ -26,12 +26,15 @@ db = SQLAlchemy(app)
 # Модель фильма для SQLAlchemy
 class Film(db.Model):
     __tablename__ = 'Movies'  # Указываем название таблицы
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80))
-    year = db.Column(db.Integer)
-    rating = db.Column(db.Float)
-    genre = db.Column(db.String(80))
 
+    # Определяем столбцы таблицы
+    id = db.Column(db.Integer, primary_key=True)  # ID фильма (первичный ключ)
+    name = db.Column(db.String(80))  # Название фильма
+    year = db.Column(db.Integer)  # Год выпуска фильма
+    rating = db.Column(db.Float)  # Рейтинг фильма
+    genre = db.Column(db.String(80))  # Жанр фильма
+
+    # Конструктор для создания нового объекта Film
     def __init__(self, name, year, rating, genre):
         self.name = name
         self.year = year
@@ -46,9 +49,6 @@ cur = con.cursor()
 # Маршрут для корневой страницы
 @app.route("/")
 def hello_world():
-    # new_film = Film('svsvsd', 'sdcsdc')  # Удалено, так как мы используем SQLAlchemy
-    # db.session.add(new_film)
-    # db.session.commit()
     # Возвращение приветственного сообщения
     return render_template('main.html')
 
@@ -88,10 +88,10 @@ def film_form():
         # Если форма была отправлена, сохраняем данные в базу данных с помощью SQLAlchemy
         # Создаем объект класса Film
         new_film = Film(
-            name=form.name.data,
-            year=form.year.data,
-            rating=form.rating.data,
-            genre=form.genre.data
+            name=form.data['name'],
+            year=form.data['year'],
+            rating=form.data['rating'],
+            genre=form.data['genre']
         )
         # Вставляем новый фильм в БД
         db.session.add(new_film)
@@ -102,7 +102,7 @@ def film_form():
     # Возвращаем форму для отображения к заполнению
     return render_template('form.html', form=form)
 
-#Маршрут для добавления нового фильма  
+#Маршрут для добавления нового фильма
 @app.route("/film_add")
 def film_add():
     # Получение данных о фильме из параметров запроса
