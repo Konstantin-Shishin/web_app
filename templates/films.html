@@ -2,6 +2,7 @@
 <html>
   <head>
     <title>Список фильмов</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   </head>
   <body>
     <!-- Ссылки на главную страницу и страницу фильмов -->
@@ -25,16 +26,17 @@
       </tr>
       <!-- Строки таблицы, содержащие информацию о фильмах -->
        {% for film in films %}
-      <tr>
-        <td>{{film[1]}}</td>
-        <td>{{film[2]}}</td>
-        <td>{{film[3]}}</td>
-        <td>{{film[4]}}</td>
+      <tr class="tr_films">
+        <td>{{film.name}}</td>
+        <td>{{film.year}}</td>
+        <td>{{film.rating}}</td>
+        <td>{{film.genre}}</td>
       </tr>
       {%endfor%}
     </table>
 
     <!-- Вывод изображения -->
     <img src="https://cdn.culture.ru/images/850320f4-dc17-5a3b-aad4-8da56bb2a090" width="100" height="100">
+    <img src="static/img/film.jpg"
   </body>
 </html>

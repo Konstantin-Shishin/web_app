@@ -56,14 +56,16 @@ def hello_world():
 @app.route("/film/<id>")
 def film(id):
     # Выполнение SQL запроса для получения данных о фильме по ID
-    res = cur.execute(f"select * from Movies where id = ?", (id,))
+    #res = cur.execute(f"select * from Movies where id = ?", (id,))
     # Получение результата запроса
-    film = res.fetchone()
+    #film = res.fetchone()
+    #print(film)
+    film = Film.query.filter_by(id=id).all()
     print(film)
     # Проверка, найден ли фильм
-    if film != None:
+    if film != []:
         # Возвращение результата
-        return render_template('film.html', film = film )
+        return render_template('film.html', film = film[0] )
     else:
         # Сообщение о том, что фильма не существует   
         return "Такого фильма нет"
@@ -72,9 +74,10 @@ def film(id):
 @app.route("/films" )
 def films():
     # Выполнение SQL запроса для получения всех фильмов
-    res = cur.execute("select * from Movies")
+    #res = cur.execute("select * from Movies")
     # Получение результата запроса
-    films = res.fetchall()
+    #films = res.fetchall()
+    films = Film.query.all()
     # Возвращение списка фильмов
     return render_template('films.html', films = films)
 
